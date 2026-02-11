@@ -11,6 +11,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/api/status', (req, res) => {
+  console.log('Server is running');
   res.json({ status: 'Server is running' });
 });
 
