@@ -1,0 +1,89 @@
+const fs = require('fs').promises;
+const path = require('path');
+const pool = require('../config/db');
+
+const validIdentifier = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
+
+async function loadJsonToCategory(filePath) {
+    const resolved = path.isAbsolute(filePath) ? filePath : path.resolve(process.cwd(), filePath);
+    const contents = await fs.readFile(resolved, 'utf8');
+    let data = JSON.parse(contents);
+
+    // if (!Array.isArray(data)) {
+    //     if (Array.isArray(data.categories)) data = data.categories;
+    //     else throw new Error('JSON must be an array or contain an array in the "categories" property');
+    // }
+
+    if (data.length === 0) return { inserted: 0 };
+
+    for (const item of data) {
+        item[]
+        const keys = Object.keys(item);
+        for (const key of keys) {
+            console.log(`Key: ${key}, Value: ${item[key]}`);
+        }
+
+    }
+
+    // const client = await pool.connect();
+    // try {
+    //     await client.query('BEGIN');
+    //     let inserted = 0;
+
+    //     for (const item of data) {
+    //         if (!item || typeof item !== 'object') continue;
+    //         const keys = Object.keys(item).filter(k => validIdentifier.test(k));
+    //         if (keys.length === 0) continue;
+
+    //         const quotedCols = keys.map(k => `"${k.replace(/"/g, '""')}"`);
+    //         const placeholders = keys.map((_, i) => `$${i + 1}`);
+    //         const params = keys.map(k => item[k]);
+
+    //         const hasId = Object.prototype.hasOwnProperty.call(item, 'id') && validIdentifier.test('id');
+
+    //         let sql;
+    //         if (hasId) {
+    //             const updates = keys.filter(k => k !== 'id');
+    //             if (updates.length > 0) {
+    //                 const updateSql = updates.map(k => `"${k.replace(/"/g, '""')}" = EXCLUDED."${k.replace(/"/g, '""')}"`).join(', ');
+    //                 sql = `INSERT INTO platform.category (${quotedCols.join(',')}) VALUES (${placeholders.join(',')}) ON CONFLICT (id) DO UPDATE SET ${updateSql}`;
+    //             } else {
+    //                 sql = `INSERT INTO platform.category (${quotedCols.join(',')}) VALUES (${placeholders.join(',')}) ON CONFLICT (id) DO NOTHING`;
+    //             }
+    //         } else {
+    //             sql = `INSERT INTO platform.category (${quotedCols.join(',')}) VALUES (${placeholders.join(',')})`;
+    //         }
+
+    //         await client.query(sql, params);
+    //         inserted++;
+    //     }
+
+    //     await client.query('COMMIT');
+    //     return { inserted };
+    // } catch (err) {
+    //     await client.query('ROLLBACK');
+    //     throw err;
+    // } finally {
+    //     client.release();
+    // }
+}
+
+if (require.main === module) {
+    const file = process.argv[2];
+    if (!file) {
+        console.error('Usage: node src/services/utilities.js <path-to-json>');
+        process.exit(1);
+    }
+
+    loadJsonToCategory(file)
+        .then(result => {
+            console.log('Done:', result);
+            process.exit(0);
+        })
+        .catch(err => {
+            console.error('Error loading JSON to platform.category:', err);
+            process.exit(2);
+        });
+}
+
+module.exports = { loadJsonToCategory };
